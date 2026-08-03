@@ -2,6 +2,10 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 from pathlib import Path
 import shutil
 
+from uuid import uuid4
+
+extension = Path(file.filename).suffix if file.filename else ".jpg"
+
 router = APIRouter()
 
 UPLOAD_DIR = Path("app/uploads")
