@@ -11,7 +11,7 @@ print(r.json())
 
 # Valid upload
 print("\n=== Upload Valid Image ===")
-with open("app/uploads/thinker.jpg", "rb") as f:
+with open("../app/uploads/thinker.jpg", "rb") as f:
     r = client.post("/predict", files={"file": ("thinker.jpg", f, "image/jpeg")})
 print(f"Status: {r.status_code}")
 print(r.json())
