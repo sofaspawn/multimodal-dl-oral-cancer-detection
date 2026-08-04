@@ -1,0 +1,60 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens for the oral cancer detection prototype.
+ *
+ * Tailwind v4 reads these directly, so every token below is usable as a normal
+ * utility: `--color-brand-600` becomes `bg-brand-600`, `text-brand-600`, etc.
+ *
+ * The diagnostic palette is deliberately separate from the brand palette. Class
+ * colours must never be reused for decoration -- if something is red on this UI,
+ * it means elevated risk and nothing else.
+ */
+@theme {
+  /* Brand: calm clinical teal, used for navigation, links and primary actions. */
+  --color-brand-50: #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-200: #99f6e4;
+  --color-brand-300: #5eead4;
+  --color-brand-400: #2dd4bf;
+  --color-brand-500: #14b8a6;
+  --color-brand-600: #0d9488;
+  --color-brand-700: #0f766e;
+  --color-brand-800: #115e59;
+  --color-brand-900: #134e4a;
+  --color-brand-950: #042f2e;
+
+  /* Diagnostic classes. Reserved exclusively for prediction outcomes. */
+  --color-risk-high: #dc2626;
+  --color-risk-high-bg: #fef2f2;
+  --color-risk-high-border: #fecaca;
+
+  --color-risk-moderate: #d97706;
+  --color-risk-moderate-bg: #fffbeb;
+  --color-risk-moderate-border: #fde68a;
+
+  --color-risk-low: #059669;
+  --color-risk-low-bg: #ecfdf5;
+  --color-risk-low-border: #a7f3d0;
+
+  /* Surfaces */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8fafc;
+  --color-surface-border: #e2e8f0;
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-surface-muted text-slate-700 antialiased;
+  }
+
+  /* A visible, consistent focus ring everywhere. The dropzone and the custom
+     form controls in later phases depend on this being a global default. */
+  :focus-visible {
+    @apply outline-brand-600 outline-2 outline-offset-2;
+  }
+}
