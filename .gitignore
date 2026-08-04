@@ -1,5 +1,14 @@
 oral-cancer-2.0/
 oral-cancer/
-backend/__pycache__/
-backend/app/__pycache__/
-backend/app/routers/__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+.env
+*.egg-info/
+dist/
+build/
