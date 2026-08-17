@@ -1,14 +1,11 @@
 import { Outlet } from 'react-router-dom'
 
-import { DisclaimerBanner } from './DisclaimerBanner'
 import { MobileNav, Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 
 export function AppShell() {
   return (
     <div className="flex min-h-screen flex-col">
-      <DisclaimerBanner />
-
       <div className="flex flex-1">
         <Sidebar />
 
