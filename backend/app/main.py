@@ -1,11 +1,11 @@
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
+from app.db import Base, engine
 from app.routers.auth import router as auth_router
 from app.routers.prediction import router as prediction_router
 
@@ -14,8 +14,9 @@ from app.routers.prediction import router as prediction_router
 async def lifespan(app: FastAPI):
     """Application startup/shutdown lifecycle."""
     settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-    # Ensure heatmaps subdirectory exists for future use
     (settings.UPLOAD_DIR / "heatmaps").mkdir(parents=True, exist_ok=True)
+    if settings.AUTO_CREATE_TABLES:
+        Base.metadata.create_all(bind=engine)
     yield
 
 
@@ -27,13 +28,12 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Serve uploaded files statically (for image preview, heatmaps, reports)
 app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
 app.include_router(auth_router)

@@ -1,3 +1,3 @@
-from app.models.store import PredictionRecord, PredictionStore, User, UserStore
+from app.models.entities import Prediction, Report, User
 
-__all__ = ["User", "UserStore", "PredictionRecord", "PredictionStore"]
+__all__ = ["Prediction", "Report", "User"]

@@ -13,3 +13,6 @@ htmlcov/
 dist/
 build/
 uploads/
+backend/app/uploads/
+backend/*.db
+backend/*.sqlite3
