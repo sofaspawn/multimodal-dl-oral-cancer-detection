@@ -10,11 +10,11 @@ class RegisterRequest(BaseModel):
     password: str
     full_name: str
 
-    @field_validator('email')
+    @field_validator("email")
     @classmethod
     def validate_email(cls, v: str) -> str:
-        if '@' not in v or '.' not in v.split('@')[-1]:
-            raise ValueError('Invalid email format')
+        if "@" not in v or "." not in v.split("@")[-1]:
+            raise ValueError("Invalid email format")
         return v.lower()
 
 
@@ -22,11 +22,11 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
-    @field_validator('email')
+    @field_validator("email")
     @classmethod
     def validate_email(cls, v: str) -> str:
-        if '@' not in v or '.' not in v.split('@')[-1]:
-            raise ValueError('Invalid email format')
+        if "@" not in v or "." not in v.split("@")[-1]:
+            raise ValueError("Invalid email format")
         return v.lower()
 
 
@@ -49,15 +49,20 @@ class AuthResponse(BaseModel):
 
 class PredictionUploadResponse(BaseModel):
     """Response returned after successfully uploading an image."""
+
+    prediction_id: int
     filename: str
     status: str
     message: str
+    created_at: str
+    image_url: str | None = None
 
 
 class PredictionResult(BaseModel):
     """Full prediction result (used once ML inference is integrated)."""
+
     prediction_id: int
-    prediction: str  # "Cancer" | "Non-Cancer"
+    prediction: str
     confidence: float
     heatmap_url: str | None = None
     pdf_url: str | None = None
@@ -65,16 +70,19 @@ class PredictionResult(BaseModel):
 
 class PredictionHistoryItem(BaseModel):
     """A single entry in prediction history."""
+
     prediction_id: int
-    prediction: str  # "Cancer" | "Non-Cancer" | "Pending"
+    prediction: str
     confidence: float
     created_at: str
+    image_url: str | None = None
 
 
 class PredictionDetail(BaseModel):
-    """Detailed prediction for GET /predictions/{id} - matches frontend PredictionOutcome"""
+    """Detailed prediction for GET /predictions/{id} - matches frontend PredictionOutcome."""
+
     prediction_id: int
-    prediction: str  # "Cancer" | "Non-Cancer" | "Pending"
+    prediction: str
     confidence: float
     heatmap_url: str | None = None
     pdf_url: str | None = None

@@ -30,6 +30,7 @@ def _record_to_history_item(record: Prediction) -> PredictionHistoryItem:
         prediction=record.prediction or "Pending",
         confidence=record.confidence or 0.0,
         created_at=record.created_at.isoformat(),
+        image_url=f"/uploads/{record.filename}" if record.filename else None,
     )
 
 
@@ -46,9 +47,12 @@ async def upload_prediction(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     return PredictionUploadResponse(
+        prediction_id=prediction.prediction_id,
         filename=prediction.filename,
         status="uploaded",
         message="Image uploaded successfully. Prediction pending ML integration.",
+        created_at=prediction.created_at.isoformat(),
+        image_url=f"/uploads/{prediction.filename}" if prediction.filename else None,
     )
 
 
