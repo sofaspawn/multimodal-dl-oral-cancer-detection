@@ -13,6 +13,7 @@ from app.routers.prediction import router as prediction_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application startup/shutdown lifecycle."""
+    settings.validate()
     settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     (settings.UPLOAD_DIR / "heatmaps").mkdir(parents=True, exist_ok=True)
     if settings.AUTO_CREATE_TABLES:
@@ -42,4 +43,9 @@ app.include_router(prediction_router)
 
 @app.get("/")
 def health():
-    return {"status": "healthy"}
+    return {"status": "healthy", "version": settings.API_VERSION}
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "version": settings.API_VERSION}

@@ -1,10 +1,8 @@
 /**
  * Prediction endpoints.
  *
- * Only POST /predict exists on the backend today, and it returns just
- * {filename, status, message} -- see backend/app/routers/prediction.py. The
- * other functions are written against the contract in BACKEND_API.md and work
- * against fixtures until those routes ship.
+ * The backend stores relative asset URLs. Normalize them at this boundary so
+ * every page works when the API and frontend are deployed separately.
  */
 
 import { getJson, postForm, resolveUrl, USE_MOCKS } from './client'
@@ -17,14 +15,21 @@ import type {
 } from './types'
 
 /**
- * Whether patient metadata is appended to the upload request.
- *
- * Currently false by decision: the form is built and validated, but POST
- * /predict has no metadata contract yet, so we send the image alone. The
- * append logic below is written and ready -- flipping this constant to true is
- * the only change needed once the backend accepts the fields.
+ * Metadata is sent as one JSON form field to keep the multipart contract
+ * stable as the metadata schema grows.
  */
-const SEND_METADATA: boolean = false
+const SEND_METADATA: boolean = true
+
+function normalizeOutcome(outcome: PredictionOutcome): PredictionOutcome {
+  return {
+    ...outcome,
+    image_url: outcome.image_url ? resolveUrl(outcome.image_url) : outcome.image_url,
+    heatmap_url: outcome.heatmap_url
+      ? resolveUrl(outcome.heatmap_url)
+      : outcome.heatmap_url,
+    pdf_url: outcome.pdf_url ? resolveUrl(outcome.pdf_url) : outcome.pdf_url,
+  }
+}
 
 export async function uploadPrediction(
   file: File,
@@ -36,39 +41,37 @@ export async function uploadPrediction(
   form.append('file', file)
 
   if (SEND_METADATA && metadata) {
-    for (const [key, value] of Object.entries(metadata)) {
-      if (value !== undefined && value !== null && value !== '') {
-        form.append(key, String(value))
-      }
-    }
+    form.append('metadata_json', JSON.stringify(metadata))
   }
 
   const response = await postForm<PredictionUploadResponse>('/predict', form)
 
-  // The live endpoint stores the image and returns no prediction -- there is no
-  // model behind it yet. Synthesise an outcome flagged as pending rather than
-  // inventing a class and a confidence the backend never produced.
-  return {
+  return normalizeOutcome({
     prediction_id: response.prediction_id,
-    prediction: 'Pending',
-    confidence: 0,
-    heatmap_url: null,
-    pdf_url: null,
+    prediction: response.prediction,
+    confidence: response.confidence,
+    heatmap_url: response.heatmap_url,
+    pdf_url: response.pdf_url,
     created_at: response.created_at,
     filename: response.filename,
-    image_url: URL.createObjectURL(file),
-    is_pending_inference: true,
-  }
+    image_url: response.image_url ?? URL.createObjectURL(file),
+    is_pending_inference: response.is_pending_inference,
+  })
 }
 
 export function listPredictions(): Promise<PredictionHistoryEntry[]> {
   if (USE_MOCKS) return mocks.listPredictions()
-  return getJson<PredictionHistoryEntry[]>('/predictions')
+  return getJson<PredictionHistoryEntry[]>('/predictions').then((items) =>
+    items.map((item) => ({
+      ...item,
+      image_url: item.image_url ? resolveUrl(item.image_url) : item.image_url,
+    })),
+  )
 }
 
 export function getPrediction(id: number): Promise<PredictionOutcome> {
   if (USE_MOCKS) return mocks.getPrediction(id)
-  return getJson<PredictionOutcome>(`/predictions/${id}`)
+  return getJson<PredictionOutcome>(`/predictions/${id}`).then(normalizeOutcome)
 }
 
 /** Absolute URL of the generated PDF report, for a download link. */

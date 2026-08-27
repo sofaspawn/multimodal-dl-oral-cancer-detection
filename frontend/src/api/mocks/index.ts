@@ -65,8 +65,8 @@ export async function me(): Promise<User> {
 
 export async function uploadPrediction(
   file: File,
-  // Accepted so the mock matches the real signature. Metadata is not part of
-  // the contract yet, so nothing here reads it. See SEND_METADATA.
+  // Accepted so the mock matches the real signature. Mock persistence remains
+  // intentionally lightweight and does not model server-side metadata.
   _metadata?: PatientMetadata,
 ): Promise<PredictionOutcome> {
   // Longer than a normal request: inference is the slow step, and the upload

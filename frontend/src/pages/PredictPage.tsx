@@ -34,9 +34,8 @@ export function PredictPage() {
     setSubmitting(true)
 
     try {
-      // Metadata is passed through but not transmitted -- see SEND_METADATA in
-      // src/api/predictions.ts. It travels to the result page in router state
-      // so the analysis is still presented as multimodal.
+      // Metadata is sent with the image and also carried through navigation so
+      // the result is immediately useful before a reload.
       const outcome = await uploadPrediction(file, metadata)
       navigate(`/predictions/${outcome.prediction_id}`, {
         state: { outcome, metadata },
@@ -97,9 +96,7 @@ export function PredictPage() {
                   </p>
                 )}
                 <p className="text-xs text-slate-500">
-                  Patient metadata is recorded and validated locally. It is not
-                  sent to the server yet — the prediction endpoint currently
-                  accepts the image only.
+                  Patient metadata is validated and stored with this analysis.
                 </p>
               </div>
             }

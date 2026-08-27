@@ -1,14 +1,14 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 # --- Auth schemas ---
 
 class RegisterRequest(BaseModel):
-    email: str
-    password: str
-    full_name: str
+    email: str = Field(min_length=3, max_length=255)
+    password: str = Field(min_length=8, max_length=128)
+    full_name: str = Field(min_length=2, max_length=255)
 
     @field_validator("email")
     @classmethod
@@ -56,6 +56,11 @@ class PredictionUploadResponse(BaseModel):
     message: str
     created_at: str
     image_url: str | None = None
+    prediction: str = "Pending"
+    confidence: float = 0.0
+    heatmap_url: str | None = None
+    pdf_url: str | None = None
+    is_pending_inference: bool = True
 
 
 class PredictionResult(BaseModel):
@@ -90,3 +95,4 @@ class PredictionDetail(BaseModel):
     created_at: str
     image_url: str | None = None
     is_pending_inference: bool
+    metadata: dict | None = None
