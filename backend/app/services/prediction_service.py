@@ -18,8 +18,8 @@ class PredictionService:
     """
 
     def __init__(self, db: Session) -> None:
-        self.db = db
-        self.upload_dir = settings.UPLOAD_DIR
+        self.db: Session = db
+        self.upload_dir: Path = settings.UPLOAD_DIR
         self._ensure_upload_dir()
 
     def _ensure_upload_dir(self) -> None:
@@ -31,15 +31,27 @@ class PredictionService:
 
         extension = Path(file.filename).suffix.lower()
         if extension not in settings.ALLOWED_EXTENSIONS:
+            allowed_types = ", ".join(sorted(settings.ALLOWED_EXTENSIONS))
             raise ValueError(
-                f"Unsupported file type '{extension}'. "
-                f"Allowed types: {', '.join(sorted(settings.ALLOWED_EXTENSIONS))}"
+                f"Unsupported file type '{extension}'. Allowed types: {allowed_types}"
+            )
+
+        current_position = file.file.tell()
+        file.file.seek(0, 2)
+        file_size = file.file.tell()
+        file.file.seek(current_position)
+        if file_size > settings.max_file_size_bytes:
+            raise ValueError(
+                f"File too large. Maximum allowed size is {settings.MAX_FILE_SIZE_MB} MB."
             )
 
     def save_image(self, file: UploadFile) -> str:
         self._validate_file(file)
 
-        extension = Path(file.filename).suffix.lower()  # type: ignore[arg-type]
+        if file.filename is None:
+            raise ValueError("No filename provided.")
+
+        extension = Path(file.filename).suffix.lower()
         filename = f"{uuid4()}{extension}"
         destination = self.upload_dir / filename
 

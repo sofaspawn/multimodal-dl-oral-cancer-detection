@@ -49,12 +49,12 @@ export async function uploadPrediction(
   // model behind it yet. Synthesise an outcome flagged as pending rather than
   // inventing a class and a confidence the backend never produced.
   return {
-    prediction_id: -1,
+    prediction_id: response.prediction_id,
     prediction: 'Pending',
     confidence: 0,
     heatmap_url: null,
     pdf_url: null,
-    created_at: new Date().toISOString(),
+    created_at: response.created_at,
     filename: response.filename,
     image_url: URL.createObjectURL(file),
     is_pending_inference: true,

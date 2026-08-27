@@ -11,9 +11,12 @@ export type PredictionLabel = 'Cancer' | 'Non-Cancer'
 
 /** Mirrors `PredictionUploadResponse`. What POST /predict returns today. */
 export interface PredictionUploadResponse {
+  prediction_id: number
   filename: string
   status: string
   message: string
+  created_at: string
+  image_url: string | null
 }
 
 /** Mirrors `PredictionResult`. What POST /predict will return post-inference. */
@@ -28,9 +31,10 @@ export interface PredictionResult {
 /** Mirrors `PredictionHistoryItem`. One row of GET /predictions. */
 export interface PredictionHistoryItem {
   prediction_id: number
-  prediction: PredictionLabel
+  prediction: PredictionLabel | 'Pending'
   confidence: number
   created_at: string
+  image_url?: string | null
 }
 
 /**
@@ -53,7 +57,7 @@ export interface PredictionOutcome extends Omit<PredictionResult, 'prediction'> 
 
 /** A history row plus the extras the table renders. */
 export interface PredictionHistoryEntry extends PredictionHistoryItem {
-  image_url?: string
+  image_url?: string | null
 }
 
 /**
