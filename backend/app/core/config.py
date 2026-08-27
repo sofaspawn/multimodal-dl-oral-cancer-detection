@@ -2,9 +2,24 @@ import json
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+_BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
+
+# Populate os.environ from backend/.env for local (non-Docker) runs, e.g.
+# `uvicorn` started directly from the venv. The class body below reads
+# os.getenv(...) at class-definition time, so this must run first.
+#
+# Docker containers never have this file (the Dockerfile doesn't COPY it,
+# and it's git-ignored) -- they get DATABASE_URL etc. from compose's
+# `environment:`/`env_file:`, which populate os.environ before Python even
+# starts. load_dotenv() does not override existing variables by default, so
+# it's a no-op there rather than a conflicting second source of config.
+load_dotenv(_BACKEND_DIR / ".env")
+
 
 class Settings:
-    BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
+    BASE_DIR: Path = _BACKEND_DIR
     APP_DIR: Path = BASE_DIR / "app"
 
     UPLOAD_DIR: Path = Path(os.getenv("UPLOAD_DIR", str(APP_DIR / "uploads")))

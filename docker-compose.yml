@@ -1,4 +1,26 @@
 services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: oral_cancer
+      POSTGRES_USER: oral_cancer
+      POSTGRES_PASSWORD: oral_cancer_dev
+    ports:
+      # Host-side 5433, not 5432: a machine may already run a native Postgres
+      # on the default port, which silently intercepts container traffic
+      # rather than erroring, since Windows lets Docker's proxy bind
+      # alongside it. This only affects host->container access from a
+      # locally-run uvicorn; the api container still reaches this one at
+      # db:5432 over the internal compose network, unaffected by host ports.
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U oral_cancer -d oral_cancer"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   api:
     build: ./backend
     ports:
@@ -6,12 +28,15 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      DATABASE_URL: sqlite:////app/data/oral_cancer.db
+      DATABASE_URL: postgresql+psycopg://oral_cancer:oral_cancer_dev@db:5432/oral_cancer
+      AUTO_CREATE_TABLES: "false"
       UPLOAD_DIR: /app/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
     volumes:
       - api_uploads:/app/app/uploads
-      - api_data:/app/data
 
 volumes:
+  postgres_data:
   api_uploads:
-  api_data:
