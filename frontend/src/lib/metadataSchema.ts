@@ -7,8 +7,7 @@ import type { PatientMetadata } from '@/api/types'
  *
  * Field names match the PatientMetadata contract in src/api/types.ts exactly,
  * and the assertion at the bottom of this file fails the build if they ever
- * drift apart. The values are validated but not transmitted; see SEND_METADATA
- * in src/api/predictions.ts.
+ * drift apart. The validated object is sent as metadata_json with the image.
  */
 
 export const SEX_OPTIONS = [

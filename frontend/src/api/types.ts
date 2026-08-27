@@ -17,6 +17,11 @@ export interface PredictionUploadResponse {
   message: string
   created_at: string
   image_url: string | null
+  prediction: PredictionLabel | 'Pending'
+  confidence: number
+  heatmap_url: string | null
+  pdf_url: string | null
+  is_pending_inference: boolean
 }
 
 /** Mirrors `PredictionResult`. What POST /predict will return post-inference. */
@@ -67,7 +72,7 @@ export interface PredictionHistoryEntry extends PredictionHistoryItem {
  * schema can be checked against the API contract instead of silently becoming
  * it. The form's `z.infer` type must satisfy this interface.
  *
- * NOTE: not currently transmitted. See SEND_METADATA in predictions.ts.
+ * Sent as the `metadata_json` multipart field with the image upload.
  */
 export interface PatientMetadata {
   age: number

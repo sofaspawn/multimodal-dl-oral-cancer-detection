@@ -36,6 +36,9 @@ class PredictionService:
                 f"Unsupported file type '{extension}'. Allowed types: {allowed_types}"
             )
 
+        if file.content_type and not file.content_type.startswith("image/"):
+            raise ValueError("The uploaded file must be an image.")
+
         current_position = file.file.tell()
         file.file.seek(0, 2)
         file_size = file.file.tell()
@@ -56,16 +59,27 @@ class PredictionService:
         destination = self.upload_dir / filename
 
         with destination.open("wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+            shutil.copyfileobj(file.file, buffer, length=1024 * 1024)
+
+        # The initial size check can be bypassed by streamed uploads whose
+        # file pointer does not expose the complete content length.
+        if destination.stat().st_size > settings.max_file_size_bytes:
+            destination.unlink(missing_ok=True)
+            raise ValueError(
+                f"File too large. Maximum allowed size is {settings.MAX_FILE_SIZE_MB} MB."
+            )
 
         return filename
 
-    def create_prediction(self, user: User, file: UploadFile) -> Prediction:
+    def create_prediction(
+        self, user: User, file: UploadFile, metadata: dict | None = None
+    ) -> Prediction:
         filename = self.save_image(file)
         prediction = Prediction(
             user_id=user.id,
             filename=filename,
             image_path=str(self.upload_dir / filename),
+            metadata_json=metadata,
         )
         self.db.add(prediction)
         self.db.commit()

@@ -10,6 +10,7 @@ class Settings:
     UPLOAD_DIR: Path = Path(os.getenv("UPLOAD_DIR", str(APP_DIR / "uploads")))
     ALLOWED_EXTENSIONS: set[str] = {".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".webp"}
     MAX_FILE_SIZE_MB: int = int(os.getenv("MAX_FILE_SIZE_MB", "10"))
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development").lower()
 
     API_TITLE: str = os.getenv("API_TITLE", "Oral Cancer Detection API")
     API_VERSION: str = os.getenv("API_VERSION", "1.0.0")
@@ -36,6 +37,12 @@ class Settings:
         if raw.startswith("["):
             return json.loads(raw)
         return [origin.strip() for origin in raw.split(",") if origin.strip()]
+
+    def validate(self) -> None:
+        if self.ENVIRONMENT == "production" and self.SECRET_KEY == "dev-secret-change-in-production":
+            raise RuntimeError("SECRET_KEY must be set in production")
+        if self.MAX_FILE_SIZE_MB <= 0:
+            raise RuntimeError("MAX_FILE_SIZE_MB must be positive")
 
 
 settings = Settings()
