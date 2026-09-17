@@ -83,9 +83,9 @@ class PredictionService:
         
         pred_label, conf = predict_image(image_full_path)
         
-        # Heatmap Generation
+        # Heatmap Generation — saved to uploads/heatmaps/ subdir so it serves at /uploads/heatmaps/{filename}
         heatmap_filename = f"heatmap_{filename}"
-        heatmap_full_path = str(self.upload_dir / heatmap_filename)
+        heatmap_full_path = str(self.upload_dir / "heatmaps" / heatmap_filename)
         generate_gradcam_heatmap(image_full_path, heatmap_full_path)
         
         prediction = Prediction(

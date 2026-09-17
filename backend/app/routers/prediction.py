@@ -19,7 +19,7 @@ def _record_to_detail(record: Prediction) -> PredictionDetail:
         prediction_id=record.prediction_id,
         prediction=record.prediction or "Pending",
         confidence=record.confidence or 0.0,
-        heatmap_url=f"/uploads/heatmaps/{record.heatmap_path}" if record.heatmap_path else None,
+        heatmap_url=f"/uploads/heatmaps/{Path(record.heatmap_path).name}" if record.heatmap_path else None,
         pdf_url=f"/reports/{record.prediction_id}" if record.report else None,
         filename=record.filename,
         created_at=record.created_at.isoformat(),
@@ -69,6 +69,8 @@ async def upload_prediction(
         image_url=f"/uploads/{prediction.filename}" if prediction.filename else None,
         prediction=prediction.prediction,
         confidence=prediction.confidence,
+        heatmap_url=f"/uploads/heatmaps/{Path(prediction.heatmap_path).name}" if prediction.heatmap_path else None,
+        pdf_url=f"/reports/{prediction.prediction_id}",
         is_pending_inference=False,
     )
 
