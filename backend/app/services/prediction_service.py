@@ -75,11 +75,27 @@ class PredictionService:
         self, user: User, file: UploadFile, metadata: dict | None = None
     ) -> Prediction:
         filename = self.save_image(file)
+        image_full_path = str(self.upload_dir / filename)
+        
+        # ML Inference
+        from app.ml.inference import predict_image
+        from app.ml.explainability import generate_gradcam_heatmap
+        
+        pred_label, conf = predict_image(image_full_path)
+        
+        # Heatmap Generation
+        heatmap_filename = f"heatmap_{filename}"
+        heatmap_full_path = str(self.upload_dir / heatmap_filename)
+        generate_gradcam_heatmap(image_full_path, heatmap_full_path)
+        
         prediction = Prediction(
             user_id=user.id,
             filename=filename,
-            image_path=str(self.upload_dir / filename),
+            image_path=image_full_path,
             metadata_json=metadata,
+            prediction=pred_label,
+            confidence=conf,
+            heatmap_path=heatmap_full_path
         )
         self.db.add(prediction)
         self.db.commit()

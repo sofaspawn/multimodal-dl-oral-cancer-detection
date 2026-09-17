@@ -64,12 +64,12 @@ async def upload_prediction(
         prediction_id=prediction.prediction_id,
         filename=prediction.filename,
         status="uploaded",
-        message="Image uploaded successfully. Inference is pending model configuration.",
+        message="Image uploaded and inference completed successfully.",
         created_at=prediction.created_at.isoformat(),
         image_url=f"/uploads/{prediction.filename}" if prediction.filename else None,
-        prediction="Pending",
-        confidence=0.0,
-        is_pending_inference=True,
+        prediction=prediction.prediction,
+        confidence=prediction.confidence,
+        is_pending_inference=False,
     )
 
 
@@ -108,40 +108,10 @@ def download_report(
     if record.is_pending:
         raise HTTPException(status_code=400, detail="Report not available until inference completes")
     if record.report is None:
-        report_dir = Path(settings.UPLOAD_DIR) / "reports"
-        report_dir.mkdir(parents=True, exist_ok=True)
-        report_path = report_dir / f"{record.prediction_id}.pdf"
-        # Keep report generation dependency-free. This is a plain PDF with a
-        # clear non-diagnostic disclaimer until clinical reporting is reviewed.
-        lines = [
-            "Oral lesion analysis report",
-            f"Prediction: {record.prediction or 'Pending'}",
-            f"Confidence: {record.confidence or 0:.2f}",
-            "This software is an investigational aid, not a diagnosis.",
-            "Clinical examination and histopathology remain required.",
-        ]
-        content = "BT\n/F1 12 Tf\n72 740 Td\n" + "\n".join(
-            f"({line.replace('(', '[').replace(')', ']')}) Tj 0 -22 Td" for line in lines
-        ) + "\nET"
-        objects = [
-            "<< /Type /Catalog /Pages 2 0 R >>",
-            "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-            "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>",
-            f"<< /Length {len(content.encode())} >>\nstream\n{content}\nendstream",
-            "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
-        ]
-        pdf = "%PDF-1.4\n"
-        offsets = [0]
-        for index, obj in enumerate(objects, 1):
-            offsets.append(len(pdf.encode()))
-            pdf += f"{index} 0 obj\n{obj}\nendobj\n"
-        xref = len(pdf.encode())
-        pdf += f"xref\n0 {len(objects) + 1}\n0000000000 65535 f \n"
-        pdf += "".join(f"{offset:010d} 00000 n \n" for offset in offsets[1:])
-        pdf += f"trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF"
-        report_path.write_bytes(pdf.encode())
-        record.report = Report(pdf_path=str(report_path))
-        db.commit()
+        from app.services.report_service import ReportService
+        report_svc = ReportService(db)
+        record.report = report_svc.generate_pdf_report(record)
+
     report_path = Path(record.report.pdf_path)
     if not report_path.is_file():
         raise HTTPException(status_code=404, detail="Report file not found")

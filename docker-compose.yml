@@ -1,12 +1,25 @@
 services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: oral_cancer
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   api:
     build: ./backend
     ports:
       - "8000:8000"
+    depends_on:
+      - db
     env_file:
       - ./backend/.env
     environment:
-      DATABASE_URL: sqlite:////app/data/oral_cancer.db
+      DATABASE_URL: postgresql://postgres:postgrespassword@db:5432/oral_cancer
       UPLOAD_DIR: /app/app/uploads
     volumes:
       - api_uploads:/app/app/uploads
@@ -15,3 +28,4 @@ services:
 volumes:
   api_uploads:
   api_data:
+  postgres_data:
