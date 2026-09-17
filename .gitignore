@@ -16,3 +16,8 @@ uploads/
 backend/app/uploads/
 backend/*.db
 backend/*.sqlite3
+
+# ML model weights (large binary artifacts)
+backend/app/ml/weights/
+*.pth
+*.pt
