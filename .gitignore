@@ -16,3 +16,4 @@ uploads/
 backend/app/uploads/
 backend/*.db
 backend/*.sqlite3
+PROJECT_PROGRESS_README.md
