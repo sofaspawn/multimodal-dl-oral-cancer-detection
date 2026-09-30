@@ -76,26 +76,34 @@ class PredictionService:
     ) -> Prediction:
         filename = self.save_image(file)
         image_full_path = str(self.upload_dir / filename)
-        
+
         # ML Inference
         from app.ml.inference import predict_image
         from app.ml.explainability import generate_gradcam_heatmap
-        
-        pred_label, conf = predict_image(image_full_path)
-        
+
+        pred_result = predict_image(image_full_path)
+
         # Heatmap Generation — saved to uploads/heatmaps/ subdir so it serves at /uploads/heatmaps/{filename}
         heatmap_filename = f"heatmap_{filename}"
         heatmap_full_path = str(self.upload_dir / "heatmaps" / heatmap_filename)
         generate_gradcam_heatmap(image_full_path, heatmap_full_path)
-        
+
+        # Build metadata including new severity and potentially_malignant fields
+        prediction_metadata = {
+            "severity": pred_result.severity,
+            "potentially_malignant": pred_result.potentially_malignant,
+        }
+
         prediction = Prediction(
             user_id=user.id,
             filename=filename,
             image_path=image_full_path,
             metadata_json=metadata,
-            prediction=pred_label,
-            confidence=conf,
-            heatmap_path=heatmap_full_path
+            prediction=pred_result.label,
+            confidence=pred_result.confidence,
+            heatmap_path=heatmap_full_path,
+            severity=pred_result.severity,
+            potentially_malignant=pred_result.potentially_malignant,
         )
         self.db.add(prediction)
         self.db.commit()

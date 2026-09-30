@@ -86,6 +86,7 @@ export function HistoryPage() {
                   <th className="py-3 pr-4 font-medium">Image</th>
                   <th className="py-3 pr-4 font-medium">Prediction</th>
                   <th className="py-3 pr-4 font-medium">Confidence</th>
+                  <th className="py-3 pr-4 font-medium">Malignant</th>
                   <th className="py-3 pr-4 font-medium">Created</th>
                   <th className="py-3 text-right font-medium">Action</th>
                 </tr>
@@ -113,6 +114,13 @@ export function HistoryPage() {
                       {item.prediction === 'Pending'
                         ? 'Pending'
                         : formatPercent(item.confidence)}
+                    </td>
+                    <td className="py-3 pr-4 text-slate-700">
+                      {item.potentially_malignant === null || item.prediction === 'Pending'
+                        ? '—'
+                        : item.potentially_malignant
+                          ? 'Yes'
+                          : 'No'}
                     </td>
                     <td className="py-3 pr-4 text-slate-700">
                       {formatDateTime(item.created_at)}

@@ -1,0 +1,7 @@
+changes to be made:
+1. instead of the model returning a percentage score, it should be categorized as mild, moderate or severe
+2. add a "potentially malignant" thing to the ai prediction
+3. the model in theory is 94% accurate but when given a random image off of the internet, it showed cancer positive for all of them, doesn't matter if they were actually positive.
+4. as a sidenote, since the model is gonna be used for people whose tumors or lesions are not apparently cancerous to the naked eye. we need to create a much more fine tuned model that recognizes cancerous lesions with great accuracy even when the human eye is not able to spot it necessarily
+
+# these are the changes required as of now, implement these without breaking any existing features. especially, make no mistakes.

@@ -167,6 +167,8 @@ function ResultView({
               <ConfidenceGauge
                 value={outcome.confidence}
                 prediction={outcome.prediction}
+                severity={outcome.severity}
+                potentially_malignant={outcome.potentially_malignant}
               />
             </Card>
 

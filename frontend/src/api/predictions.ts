@@ -50,6 +50,8 @@ export async function uploadPrediction(
     prediction_id: response.prediction_id,
     prediction: response.prediction,
     confidence: response.confidence,
+    severity: response.severity,
+    potentially_malignant: response.potentially_malignant,
     heatmap_url: response.heatmap_url,
     pdf_url: response.pdf_url,
     created_at: response.created_at,

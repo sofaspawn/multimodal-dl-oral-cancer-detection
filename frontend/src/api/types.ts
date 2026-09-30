@@ -9,6 +9,9 @@
 /** Class labels the model can emit. The backend types this as a plain `str`. */
 export type PredictionLabel = 'Cancer' | 'Non-Cancer'
 
+/** Severity categories for cancer predictions. */
+export type SeverityLevel = 'mild' | 'moderate' | 'severe'
+
 /** Mirrors `PredictionUploadResponse`. What POST /predict returns today. */
 export interface PredictionUploadResponse {
   prediction_id: number
@@ -19,6 +22,8 @@ export interface PredictionUploadResponse {
   image_url: string | null
   prediction: PredictionLabel | 'Pending'
   confidence: number
+  severity: SeverityLevel | null
+  potentially_malignant: boolean | null
   heatmap_url: string | null
   pdf_url: string | null
   is_pending_inference: boolean
@@ -29,6 +34,8 @@ export interface PredictionResult {
   prediction_id: number
   prediction: PredictionLabel
   confidence: number
+  severity: SeverityLevel | null
+  potentially_malignant: boolean | null
   heatmap_url: string | null
   pdf_url: string | null
 }
@@ -38,6 +45,8 @@ export interface PredictionHistoryItem {
   prediction_id: number
   prediction: PredictionLabel | 'Pending'
   confidence: number
+  severity: SeverityLevel | null
+  potentially_malignant: boolean | null
   created_at: string
   image_url?: string | null
 }

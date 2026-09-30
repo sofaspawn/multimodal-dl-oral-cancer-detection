@@ -1,5 +1,7 @@
 /** Display formatting helpers shared by the result page and history table. */
 
+import type { SeverityLevel } from '@/api/types'
+
 /** 0.96 -> "96%" */
 export function formatPercent(value: number): string {
   return `${Math.round(value * 100)}%`
@@ -37,6 +39,45 @@ export function confidenceBand(value: number): ConfidenceBand {
     label: 'High',
     description:
       'The model is confident in this result. Clinical confirmation is still required.',
+  }
+}
+
+export interface SeverityBand {
+  label: string
+  description: string
+  color: string
+}
+
+/**
+ * Severity categorization for cancer predictions.
+ *
+ * Severity is derived from the model's confidence score and indicates
+ * the aggressiveness or progression of the suspected lesion.
+ */
+export function severityBand(severity: SeverityLevel | null): SeverityBand | null {
+  if (!severity) return null
+
+  switch (severity) {
+    case 'mild':
+      return {
+        label: 'Mild',
+        description: 'Early-stage lesion with less aggressive features.',
+        color: 'text-amber-600',
+      }
+    case 'moderate':
+      return {
+        label: 'Moderate',
+        description: 'Established lesion with intermediate characteristics.',
+        color: 'text-orange-600',
+      }
+    case 'severe':
+      return {
+        label: 'Severe',
+        description: 'Advanced or highly aggressive features detected.',
+        color: 'text-red-600',
+      }
+    default:
+      return null
   }
 }
 

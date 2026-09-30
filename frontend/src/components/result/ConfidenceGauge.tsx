@@ -1,7 +1,7 @@
 import type { PredictionOutcome } from '@/api/types'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { cn } from '@/lib/cn'
-import { confidenceBand, formatPercent } from '@/lib/format'
+import { confidenceBand, formatPercent, severityBand } from '@/lib/format'
 
 const RADIUS = 80
 const ARC_LENGTH = Math.PI * RADIUS
@@ -17,16 +17,24 @@ const COLOURS: Record<PredictionOutcome['prediction'], string> = {
 interface ConfidenceGaugeProps {
   value: number
   prediction: PredictionOutcome['prediction']
+  severity?: string | null
+  potentially_malignant?: boolean | null
 }
 
-export function ConfidenceGauge({ value, prediction }: ConfidenceGaugeProps) {
+export function ConfidenceGauge({
+  value,
+  prediction,
+  severity,
+  potentially_malignant,
+}: ConfidenceGaugeProps) {
   const reducedMotion = usePrefersReducedMotion()
   const clamped = Math.min(Math.max(value, 0), 1)
   const offset = ARC_LENGTH * (1 - clamped)
   const band = confidenceBand(clamped)
+  const severity_info = severity ? severityBand(severity as any) : null
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-4">
       <div className="relative w-full max-w-[240px]">
         <svg
           viewBox="0 0 200 110"
@@ -86,6 +94,28 @@ export function ConfidenceGauge({ value, prediction }: ConfidenceGaugeProps) {
       <p className="max-w-xs text-center text-xs text-slate-600">
         {band.description}
       </p>
+
+      {/* Display severity information for cancer predictions */}
+      {prediction === 'Cancer' && severity_info && (
+        <div className={cn('rounded-md border border-opacity-20 bg-opacity-10 p-3 text-center', severity_info.color)}>
+          <p className="text-sm font-semibold">{severity_info.label}</p>
+          <p className="text-xs">{severity_info.description}</p>
+        </div>
+      )}
+
+      {/* Display potentially malignant assessment */}
+      {prediction !== 'Pending' && potentially_malignant !== null && (
+        <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-center">
+          <p className="text-xs font-semibold text-slate-700">
+            Potentially Malignant: {potentially_malignant ? 'Yes' : 'No'}
+          </p>
+          {potentially_malignant && (
+            <p className="text-xs text-slate-600 mt-1">
+              This lesion shows characteristics warranting clinical evaluation.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   )
 }

@@ -10,6 +10,7 @@ import type {
   PredictionLabel,
   PredictionOutcome,
   PredictionHistoryEntry,
+  SeverityLevel,
 } from '../types'
 
 /** mulberry32 -- small, fast, good enough for reproducible fixtures. */
@@ -99,6 +100,8 @@ export function mockHeatmap(seed: number): string {
 export function mockInference(filename: string): {
   prediction: PredictionLabel
   confidence: number
+  severity: string | null
+  potentially_malignant: boolean
 } {
   const rand = seededRandom(hashString(filename))
   const isCancer = rand() > 0.5
@@ -106,9 +109,22 @@ export function mockInference(filename: string): {
   // prototype dataset is a red flag, not a feature.
   const confidence = 0.62 + rand() * 0.34
 
+  let severity: string | null = null
+  if (isCancer) {
+    if (confidence < 0.7) {
+      severity = 'mild'
+    } else if (confidence < 0.85) {
+      severity = 'moderate'
+    } else {
+      severity = 'severe'
+    }
+  }
+
   return {
     prediction: isCancer ? 'Cancer' : 'Non-Cancer',
     confidence: Number(confidence.toFixed(2)),
+    severity,
+    potentially_malignant: isCancer || (confidence > 0.45 && confidence < 0.55),
   }
 }
 
@@ -133,12 +149,15 @@ const SEED_SPECS: Array<{ hours: number; name: string }> = [
 
 function seedRecords(): MockRecord[] {
   return SEED_SPECS.map((spec, index) => {
-    const { prediction, confidence } = mockInference(spec.name)
+    const { prediction, confidence, severity, potentially_malignant } =
+      mockInference(spec.name)
     const id = SEED_SPECS.length - index
     return {
       prediction_id: id,
       prediction,
       confidence,
+      severity: severity as SeverityLevel | null,
+      potentially_malignant,
       heatmap_url: mockHeatmap(hashString(spec.name)),
       pdf_url: `/reports/${id}.pdf`,
       created_at: hoursAgo(spec.hours),
@@ -170,7 +189,8 @@ export function findRecord(id: number): MockRecord | undefined {
 }
 
 export function addRecord(file: File, imageUrl: string): MockRecord {
-  const { prediction, confidence } = mockInference(file.name)
+  const { prediction, confidence, severity, potentially_malignant } =
+    mockInference(file.name)
   const id = nextId
   nextId += 1
 
@@ -178,6 +198,8 @@ export function addRecord(file: File, imageUrl: string): MockRecord {
     prediction_id: id,
     prediction,
     confidence,
+    severity: severity as SeverityLevel | null,
+    potentially_malignant,
     heatmap_url: mockHeatmap(hashString(file.name)),
     pdf_url: `/reports/${id}.pdf`,
     created_at: new Date().toISOString(),
@@ -195,6 +217,8 @@ export function toHistoryEntry(record: MockRecord): PredictionHistoryEntry {
     prediction_id: record.prediction_id,
     prediction: record.prediction as PredictionHistoryEntry['prediction'],
     confidence: record.confidence,
+    severity: record.severity as SeverityLevel | null,
+    potentially_malignant: record.potentially_malignant,
     created_at: record.created_at,
     image_url: record.image_url,
   }

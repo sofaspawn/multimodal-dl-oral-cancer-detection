@@ -16,21 +16,37 @@ class ReportService:
     def generate_pdf_report(self, prediction: Prediction) -> Report:
         if prediction.report:
             return prediction.report
-            
+
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=15)
-        
+
         pdf.cell(200, 10, txt="Oral Cancer Detection Report", ln=True, align="C")
         pdf.cell(200, 10, txt=f"Prediction ID: {prediction.prediction_id}", ln=True, align="C")
-        
+
         pdf.set_font("Arial", size=12)
         pdf.cell(200, 10, txt=f"Result: {prediction.prediction}", ln=True)
-        pdf.cell(200, 10, txt=f"Confidence: {prediction.confidence:.2f}" if prediction.confidence else "Confidence: N/A", ln=True)
-        
+
+        # Format confidence as percentage for better readability
+        if prediction.confidence:
+            confidence_pct = prediction.confidence * 100
+            pdf.cell(200, 10, txt=f"Confidence: {confidence_pct:.1f}%", ln=True)
+        else:
+            pdf.cell(200, 10, txt="Confidence: N/A", ln=True)
+
+        # Add severity if available (only for Cancer predictions)
+        if prediction.severity:
+            severity_label = prediction.severity.capitalize()
+            pdf.cell(200, 10, txt=f"Severity: {severity_label}", ln=True)
+
+        # Add potentially malignant status
+        if prediction.potentially_malignant is not None:
+            malignant_status = "Yes" if prediction.potentially_malignant else "No"
+            pdf.cell(200, 10, txt=f"Potentially Malignant: {malignant_status}", ln=True)
+
         if prediction.metadata_json:
             pdf.cell(200, 10, txt=f"Metadata: {prediction.metadata_json}", ln=True)
-            
+
         # Add Original Image
         if prediction.image_path and os.path.exists(prediction.image_path):
             pdf.cell(200, 10, txt="Original Image:", ln=True)
@@ -38,7 +54,7 @@ class ReportService:
                 pdf.image(prediction.image_path, w=100)
             except Exception as e:
                 pdf.cell(200, 10, txt=f"(Image omitted due to format issue: {e})", ln=True)
-                
+
         # Add Heatmap
         if prediction.heatmap_path and os.path.exists(prediction.heatmap_path):
             pdf.cell(200, 10, txt="Grad-CAM Heatmap:", ln=True)

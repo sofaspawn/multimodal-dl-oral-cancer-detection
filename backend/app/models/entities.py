@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import JSON, DateTime, Float, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Boolean, JSON, DateTime, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -34,6 +34,8 @@ class Prediction(Base):
     image_path: Mapped[str] = mapped_column(Text, nullable=False)
     prediction: Mapped[str | None] = mapped_column(String(64), nullable=True)
     confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
+    severity: Mapped[str | None] = mapped_column(String(16), nullable=True)  # mild, moderate, severe
+    potentially_malignant: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
     heatmap_path: Mapped[str | None] = mapped_column(Text, nullable=True)
     metadata_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(

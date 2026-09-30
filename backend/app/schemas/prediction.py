@@ -58,6 +58,8 @@ class PredictionUploadResponse(BaseModel):
     image_url: str | None = None
     prediction: str = "Pending"
     confidence: float = 0.0
+    severity: str | None = None  # mild, moderate, severe
+    potentially_malignant: bool | None = None
     heatmap_url: str | None = None
     pdf_url: str | None = None
     is_pending_inference: bool = True
@@ -69,6 +71,8 @@ class PredictionResult(BaseModel):
     prediction_id: int
     prediction: str
     confidence: float
+    severity: str | None = None  # mild, moderate, severe
+    potentially_malignant: bool | None = None
     heatmap_url: str | None = None
     pdf_url: str | None = None
 
@@ -79,6 +83,8 @@ class PredictionHistoryItem(BaseModel):
     prediction_id: int
     prediction: str
     confidence: float
+    severity: str | None = None
+    potentially_malignant: bool | None = None
     created_at: str
     image_url: str | None = None
 
@@ -89,6 +95,8 @@ class PredictionDetail(BaseModel):
     prediction_id: int
     prediction: str
     confidence: float
+    severity: str | None = None
+    potentially_malignant: bool | None = None
     heatmap_url: str | None = None
     pdf_url: str | None = None
     filename: str
