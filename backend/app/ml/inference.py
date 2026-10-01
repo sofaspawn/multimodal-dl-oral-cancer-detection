@@ -17,10 +17,10 @@ import os
 def get_inference_model():
     global model
     if model is None:
-        model_path = os.path.join(os.path.dirname(__file__), 'weights/resnet50_oral_cancer.pth')
-        if not os.path.exists(model_path):
-            model_path = None
-        model = load_model(model_path=model_path, device=device)
+        enhanced_path = os.path.join(os.path.dirname(__file__), 'weights/resnet50_oral_cancer_enhanced.pth')
+        default_path = os.path.join(os.path.dirname(__file__), 'weights/resnet50_oral_cancer.pth')
+        model_path = enhanced_path if os.path.exists(enhanced_path) else default_path
+        model = load_model(model_path=model_path if os.path.exists(model_path) else None, device=device)
     return model
 
 # Preprocessing transforms (standard ImageNet normalization)

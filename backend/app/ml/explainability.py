@@ -16,14 +16,9 @@ def generate_gradcam_heatmap(image_path: str, output_path: str) -> str:
     Returns the output_path.
     """
     model = get_inference_model()
-    
-    # Define the target layers for ResNet50 (last convolutional layer)
-    target_layers = [model.layer4[-1]]
-    
+
     # Initialize CAM
-    # Set use_cuda based on device
-    use_cuda = device.type == 'cuda'
-    cam = GradCAM(model=model, target_layers=target_layers)
+    cam = GradCAM(model=model, target_layers=[model.layer4[-1]])
     
     # Load and preprocess image
     try:
