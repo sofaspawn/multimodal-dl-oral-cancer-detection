@@ -82,26 +82,22 @@ export function ConfidenceGauge({
         </svg>
 
         <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
-          <span className="text-3xl font-semibold text-slate-900 tabular-nums">
-            {formatPercent(clamped)}
+          <span className="text-3xl font-semibold text-slate-900">
+            {band.label}
           </span>
-          <span className="text-xs font-medium tracking-wide text-slate-500 uppercase">
-            {band.label} confidence
+          <span className="text-xs font-medium tracking-wide text-slate-500 uppercase mt-1">
+            Severity
           </span>
         </div>
       </div>
 
-      <p className="max-w-xs text-center text-xs text-slate-600">
-        {band.description}
-      </p>
-
-      {/* Display severity information for cancer predictions */}
       {prediction === 'Cancer' && severity_info && (
-        <div className={cn('rounded-md border border-opacity-20 bg-opacity-10 p-3 text-center', severity_info.color)}>
-          <p className="text-sm font-semibold">{severity_info.label}</p>
-          <p className="text-xs">{severity_info.description}</p>
-        </div>
+        <p className="max-w-xs text-center text-xs text-slate-600">
+          {severity_info.description}
+        </p>
       )}
+
+      {/* Display severity information for cancer predictions (removed redundant box) */}
 
       {/* Display potentially malignant assessment */}
       {prediction !== 'Pending' && potentially_malignant !== null && (

@@ -142,7 +142,7 @@ function ResultView({
               <code className="rounded bg-slate-100 px-1 py-0.5 font-mono text-xs">
                 POST /predict
               </code>{' '}
-              yet. No confidence score or heatmap is shown, because none exists.
+              yet. No severity rating or heatmap is shown, because none exists.
             </p>
             {outcome.image_url && (
               <img
@@ -163,7 +163,7 @@ function ResultView({
           </Card>
 
           <div className="flex flex-col gap-6">
-            <Card title="Confidence">
+            <Card title="Severity">
               <ConfidenceGauge
                 value={outcome.confidence}
                 prediction={outcome.prediction}

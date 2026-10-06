@@ -8,7 +8,7 @@ import { PredictionBadge } from '@/components/result/PredictionBadge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Spinner } from '@/components/ui/Spinner'
-import { formatDateTime, formatPercent } from '@/lib/format'
+import { formatDateTime, confidenceBand } from '@/lib/format'
 
 export function HistoryPage() {
   const [items, setItems] = useState<PredictionHistoryEntry[]>([])
@@ -85,7 +85,7 @@ export function HistoryPage() {
                 <tr className="text-left text-slate-500">
                   <th className="py-3 pr-4 font-medium">Image</th>
                   <th className="py-3 pr-4 font-medium">Prediction</th>
-                  <th className="py-3 pr-4 font-medium">Confidence</th>
+                  <th className="py-3 pr-4 font-medium">Severity</th>
                   <th className="py-3 pr-4 font-medium">Malignant</th>
                   <th className="py-3 pr-4 font-medium">Created</th>
                   <th className="py-3 text-right font-medium">Action</th>
@@ -110,10 +110,10 @@ export function HistoryPage() {
                     <td className="py-3 pr-4">
                       <PredictionBadge prediction={item.prediction} size="sm" />
                     </td>
-                    <td className="py-3 pr-4 text-slate-700">
+                    <td className="py-3 pr-4 text-slate-700 capitalize">
                       {item.prediction === 'Pending'
                         ? 'Pending'
-                        : formatPercent(item.confidence)}
+                        : confidenceBand(item.confidence).label}
                     </td>
                     <td className="py-3 pr-4 text-slate-700">
                       {item.potentially_malignant === null || item.prediction === 'Pending'

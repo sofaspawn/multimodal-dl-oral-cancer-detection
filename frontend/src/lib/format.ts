@@ -8,7 +8,7 @@ export function formatPercent(value: number): string {
 }
 
 export interface ConfidenceBand {
-  label: 'Low' | 'Moderate' | 'High'
+  label: 'Mild' | 'Moderate' | 'Severe'
   description: string
 }
 
@@ -21,7 +21,7 @@ export interface ConfidenceBand {
 export function confidenceBand(value: number): ConfidenceBand {
   if (value < 0.7) {
     return {
-      label: 'Low',
+      label: 'Mild',
       description:
         'The model is not confident in this result. Treat it as inconclusive.',
     }
@@ -36,7 +36,7 @@ export function confidenceBand(value: number): ConfidenceBand {
   }
 
   return {
-    label: 'High',
+    label: 'Severe',
     description:
       'The model is confident in this result. Clinical confirmation is still required.',
   }
